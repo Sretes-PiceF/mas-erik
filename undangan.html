@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan Erik & Mustika</title>
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="undangan.css">
+    <!-- Font Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-header">
+        <img src="./img/bunga tes.jpg" alt="Background Bunga">
+        <div class="text-overlay">
+            <h1 class="title">Erik</h1>
+            <h1 class="title">&</h1>
+            <h1 class="title">Mustika</h1>
+            <div class="divider"></div>
+            <button class="save-button">Simpan di Kalender</button>
+        </div>
+        <div class="music-player">
+            <button onclick="prevSong()">⏮ Back</button>
+            <button onclick="togglePlayPause()" id="playPauseBtn">▶️ Start</button>
+            <button onclick="nextSong()">⏭ Skip</button>
+        </div>
+
+        <audio id="audioPlayer" autoplay></audio>
+
+    </div>
+    <script>
+        const songs = [
+            "./music/hari-bahagia.mp3",
+            "./music/sosok-sempurna.mp3",
+            "./music/sempurna.mp3"
+        ];
+
+        let currentSongIndex = 0;
+        const audioPlayer = document.getElementById("audioPlayer");
+        const playPauseBtn = document.getElementById("playPauseBtn");
+
+        // Fungsi utama untuk inisialisasi musik
+        function initMusicPlayer() {
+            // 1. Set sumber audio
+            audioPlayer.src = songs[currentSongIndex];
+            audioPlayer.volume = 0.7; // Volume default 70%
+
+            // 2. Cek status izin dari localStorage
+            const musicPreference = localStorage.getItem('musicPreference');
+
+            // 3. Jika user sebelumnya menyetujui musik
+            if (musicPreference === 'allowed') {
+                // Mulai dengan mute untuk menghindari blokir browser
+                audioPlayer.muted = true;
+
+                // Coba putar audio
+                audioPlayer.play()
+                    .then(() => {
+                        // Jika berhasil, unmute setelah play
+                        setTimeout(() => {
+                            audioPlayer.muted = false;
+                            playPauseBtn.textContent = "⏸ Pause";
+                        }, 500);
+                    })
+                    .catch(error => {
+                        console.log("Autoplay diblokir:", error);
+                        playPauseBtn.textContent = "▶️ Start";
+                    });
+            } else {
+                // Jika pertama kali, set ke pause
+                playPauseBtn.textContent = "▶️ Start";
+            }
+        }
+
+        // Fungsi untuk toggle play/pause
+        function togglePlayPause() {
+            if (audioPlayer.paused) {
+                // Set izin di localStorage saat pertama kali interaksi
+                localStorage.setItem('musicPreference', 'allowed');
+
+                audioPlayer.play()
+                    .then(() => {
+                        playPauseBtn.textContent = "⏸ Pause";
+                    })
+                    .catch(error => {
+                        console.log("Gagal memutar:", error);
+                        alert("Silakan klik tombol Start sekali lagi");
+                    });
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.textContent = "▶️ Start";
+            }
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            audioPlayer.src = songs[currentSongIndex];
+            if (!audioPlayer.paused) {
+                audioPlayer.play();
+            }
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            audioPlayer.src = songs[currentSongIndex];
+            if (!audioPlayer.paused) {
+                audioPlayer.play();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Cek jika datang dari halaman welcome (ada flag musicAllowed)
+            if (localStorage.getItem('musicAllowed') === 'true') {
+                localStorage.setItem('musicPreference', 'allowed');
+                localStorage.removeItem('musicAllowed');
+            }
+
+            initMusicPlayer();
+        });
+
+        audioPlayer.addEventListener('play', () => {
+            playPauseBtn.textContent = "⏸ Pause";
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            playPauseBtn.textContent = "▶️ Start";
+        });
+
+        // Untuk memastikan musik tetap hidup saat tab tidak aktif
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                audioPlayer.muted = true;
+            } else {
+                audioPlayer.muted = false;
+            }
+        });
+    </script>
+
+</body>
+
+
+</html>
