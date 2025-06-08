@@ -10,11 +10,122 @@
     <!-- Font Google -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;700&display=swap"
         rel="stylesheet">
+    <style>
+        /* Styles for the welcome overlay */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .welcome-overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: fadeIn 1s ease;
+        }
+
+        .welcome-overlay p {
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 80%;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .welcome-button {
+            padding: 15px 40px;
+            background: #d4af37;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #333;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .welcome-button:hover {
+            background: #e8c252;
+            transform: scale(1.05);
+            box-shadow: 0 7px 20px rgba(212, 175, 55, 0.6);
+        }
+
+        .music-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: none;
+            align-items: center;
+            z-index: 1001;
+            animation: slideUp 0.5s ease;
+        }
+
+        .music-notification span {
+            margin-left: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                bottom: -50px;
+            }
+
+            to {
+                opacity: 1;
+                bottom: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div class="background-header">
-        <img src="./img/bunga tes.jpg" alt="Background Bunga">
+        <div class="image-wrapper">
+            <img src="./img/bunga tes.jpg" alt="Background Bunga">
+        </div>
         <div class="text-overlay">
             <h1 class="title">Erik</h1>
             <h1 class="title">&</h1>
@@ -28,9 +139,23 @@
             <button onclick="nextSong()">⏭ Skip</button>
         </div>
 
-        <audio id="audioPlayer" autoplay></audio>
-
+        <audio id="audioPlayer" autoplay loop></audio>
     </div>
+
+
+    <!-- Welcome Overlay -->
+    <div id="welcomeOverlay" class="welcome-overlay">
+        <h2>Selamat Datang</h2>
+        <p>Kami mengundang Anda untuk menyaksikan pernikahan kami.<br>Mohon aktifkan musik untuk pengalaman yang lebih
+            menyenangkan.</p>
+        <button id="startButton" class="welcome-button">Buka Undangan</button>
+    </div>
+
+    <!-- Music Notification -->
+    <div id="musicNotification" class="music-notification">
+        🔊 Musik telah diaktifkan
+    </div>
+
     <script>
         const songs = [
             "./music/hari-bahagia.mp3",
@@ -41,79 +166,113 @@
         let currentSongIndex = 0;
         const audioPlayer = document.getElementById("audioPlayer");
         const playPauseBtn = document.getElementById("playPauseBtn");
+        const welcomeOverlay = document.getElementById("welcomeOverlay");
+        const musicNotification = document.getElementById("musicNotification");
+        let hasInteracted = false;
 
         // Fungsi utama untuk inisialisasi musik
-        function initMusicPlayer() {
-            // 1. Set sumber audio
+        async function initMusicPlayer() {
             audioPlayer.src = songs[currentSongIndex];
-            audioPlayer.volume = 0.7; // Volume default 70%
+            audioPlayer.volume = 0.7;
+            audioPlayer.loop = true;
 
-            // 2. Cek status izin dari localStorage
             const musicPreference = localStorage.getItem('musicPreference');
 
-            // 3. Jika user sebelumnya menyetujui musik
             if (musicPreference === 'allowed') {
-                // Mulai dengan mute untuk menghindari blokir browser
-                audioPlayer.muted = true;
-
-                // Coba putar audio
-                audioPlayer.play()
-                    .then(() => {
-                        // Jika berhasil, unmute setelah play
-                        setTimeout(() => {
-                            audioPlayer.muted = false;
-                            playPauseBtn.textContent = "⏸ Pause";
-                        }, 500);
-                    })
-                    .catch(error => {
-                        console.log("Autoplay diblokir:", error);
-                        playPauseBtn.textContent = "▶️ Start";
-                    });
+                await attemptAutoplay();
             } else {
-                // Jika pertama kali, set ke pause
                 playPauseBtn.textContent = "▶️ Start";
             }
         }
 
-        // Fungsi untuk toggle play/pause
-        function togglePlayPause() {
-            if (audioPlayer.paused) {
-                // Set izin di localStorage saat pertama kali interaksi
-                localStorage.setItem('musicPreference', 'allowed');
+        async function attemptAutoplay() {
+            try {
+                audioPlayer.muted = true;
+                await audioPlayer.play();
 
-                audioPlayer.play()
-                    .then(() => {
-                        playPauseBtn.textContent = "⏸ Pause";
-                    })
-                    .catch(error => {
-                        console.log("Gagal memutar:", error);
-                        alert("Silakan klik tombol Start sekali lagi");
-                    });
+                // Unmute setelah berhasil
+                setTimeout(() => {
+                    audioPlayer.muted = false;
+                    playPauseBtn.textContent = "⏸ Pause";
+                    showMusicNotification();
+                }, 300);
+
+                return true;
+            } catch (error) {
+                console.log("Autoplay diblokir:", error);
+                playPauseBtn.textContent = "▶️ Start";
+                return false;
+            }
+        }
+
+        function showMusicNotification() {
+            musicNotification.style.display = 'flex';
+            setTimeout(() => {
+                musicNotification.style.opacity = '0';
+                setTimeout(() => {
+                    musicNotification.style.display = 'none';
+                    musicNotification.style.opacity = '1';
+                }, 500);
+            }, 3000);
+        }
+
+        // Fungsi untuk menutup overlay dan memulai musik
+        async function startPlayback() {
+            localStorage.setItem('musicPreference', 'allowed');
+            welcomeOverlay.style.opacity = '0';
+            setTimeout(() => {
+                welcomeOverlay.style.display = 'none';
+            }, 500);
+
+            await attemptAutoplay();
+            hasInteracted = true;
+        }
+
+        // Fungsi toggle play/pause yang lebih robust
+        async function togglePlayPause() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                localStorage.setItem('musicPreference', 'allowed');
+            }
+
+            if (audioPlayer.paused) {
+                try {
+                    await audioPlayer.play();
+                    playPauseBtn.textContent = "⏸ Pause";
+                    showMusicNotification();
+                } catch (error) {
+                    console.log("Gagal memutar:", error);
+                    // Fallback: mute dan coba lagi
+                    audioPlayer.muted = true;
+                    await audioPlayer.play();
+                    setTimeout(() => {
+                        audioPlayer.muted = false;
+                    }, 300);
+                }
             } else {
                 audioPlayer.pause();
                 playPauseBtn.textContent = "▶️ Start";
             }
         }
 
-        function nextSong() {
+        async function nextSong() {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
             audioPlayer.src = songs[currentSongIndex];
             if (!audioPlayer.paused) {
-                audioPlayer.play();
+                await audioPlayer.play();
             }
         }
 
-        function prevSong() {
+        async function prevSong() {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
             audioPlayer.src = songs[currentSongIndex];
             if (!audioPlayer.paused) {
-                audioPlayer.play();
+                await audioPlayer.play();
             }
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function () {
-            // Cek jika datang dari halaman welcome (ada flag musicAllowed)
             if (localStorage.getItem('musicAllowed') === 'true') {
                 localStorage.setItem('musicPreference', 'allowed');
                 localStorage.removeItem('musicAllowed');
@@ -122,25 +281,28 @@
             initMusicPlayer();
         });
 
+        // Tombol start event listener
+        document.getElementById('startButton').addEventListener('click', startPlayback);
+
         audioPlayer.addEventListener('play', () => {
             playPauseBtn.textContent = "⏸ Pause";
         });
 
         audioPlayer.addEventListener('pause', () => {
-            playPauseBtn.textContent = "▶️ Start";
+            if (hasInteracted) {
+                playPauseBtn.textContent = "▶️ Start";
+            }
         });
 
-        // Untuk memastikan musik tetap hidup saat tab tidak aktif
+        // Handle tab visibility changes
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 audioPlayer.muted = true;
-            } else {
+            } else if (hasInteracted) {
                 audioPlayer.muted = false;
             }
         });
     </script>
-
 </body>
-
 
 </html>
