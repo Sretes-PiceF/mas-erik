@@ -8,7 +8,8 @@
 html, body {
     width: 100%;
     height: 100%;
-    overflow-x: hidden;
+    overflow-x: auto;
+    scroll-behavior: smooth;
 }
 
 .background-header {
@@ -61,7 +62,6 @@ html, body {
     width: 90%;
     padding: 20px;
 }
-
 
 /* STYLE UMUM */
 .title {
@@ -125,7 +125,63 @@ html, body {
     background-color: #ff5c7a;
 }
 
+/* Section Styles */
+section {
+    padding: 100px 370px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+section .content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+section h2 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3rem;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+section p {
+    font-family: 'Poppins', sans-serif;
+    color: #555;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.section-kisah-kami {
+    background-color: #fff9f9;
+}
+
+.section-akad {
+    background-color: #f9fff9;
+}
+
+.section-resepsi {
+    background-color: #f9f9ff;
+}
+
+.section-gallery {
+    background-color: #fff9f9;
+}
+
 /* RESPONSIVE MOBILE */
+@media (max-width: 1200px) {
+    .background-header .image-wrapper,
+    .background-header::after,
+    section {
+        padding-left: 100px;
+        padding-right: 100px;
+        width: calc(100% - 200px);
+    }
+}
+
 @media (max-width: 768px) {
     .title {
         font-size: 3rem;
@@ -144,15 +200,22 @@ html, body {
         padding: 8px 12px;
         font-size: 14px;
     }
-        .background-header .image-wrapper {
-        width: 100%;
-        border-radius: 0;
+
+    .background-header .image-wrapper,
+    .background-header::after,
+    section {
+        padding-left: 30px;
+        padding-right: 30px;
+        width: calc(100% - 60px);
     }
 
-    .background-header::after {
-        left: 0;
-        width: 100%;
-        border-radius: 0;
+    section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    section h2 {
+        font-size: 2.5rem;
     }
 }
 
@@ -180,4 +243,58 @@ html, body {
         padding: 6px 10px;
         font-size: 12px;
     }
+
+    .background-header .image-wrapper,
+    .background-header::after,
+    section {
+        padding-left: 20px;
+        padding-right: 20px;
+        width: calc(100% - 40px);
+    }
+
+    section {
+        padding-top: 60px;
+        padding-bottom: 60px;
+        background-color: pink;
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+
+    section p {
+        font-size: 1rem;
+    }
+}
+
+.pink-box-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    padding-bottom: 40px;
+}
+
+.pink-box {
+    width: 680px;
+    height: 750px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: -20px;
+    /* Border dengan ketebalan berbeda */
+    border-style: solid;
+    border-color: #ffc0cb;
+    border-width: 15px 5px 5px 5px; /* atas kanan bawah kiri */
+    /* Alternatif: */
+    /* border-top: 15px solid #ffc0cb;
+    border-right: 5px solid #ffc0cb;
+    border-bottom: 5px solid #ffc0cb;
+    border-left: 5px solid #ffc0cb; */
 }

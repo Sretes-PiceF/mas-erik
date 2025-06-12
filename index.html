@@ -83,6 +83,39 @@
             margin-left: 10px;
         }
 
+        /* New styles for the pink box and name */
+        .pink-box-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            padding-bottom: 40px;
+        }
+
+        .pink-box {
+            width: 200px;
+            height: 200px;
+            background-color: #ffc0cb;
+            /* Pink color */
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .name-below-box {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -142,6 +175,12 @@
         <audio id="audioPlayer" autoplay loop></audio>
     </div>
 
+    <!-- Pink Box with Name -->
+    <div class="pink-box-container">
+        <div class="pink-box">
+            <!-- Content inside the pink box (optional) -->
+        </div>
+    </div>
 
     <!-- Welcome Overlay -->
     <div id="welcomeOverlay" class="welcome-overlay">
@@ -156,7 +195,16 @@
         🔊 Musik telah diaktifkan
     </div>
 
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: false,
+            offset: 120
+        });
+
         const songs = [
             "./music/hari-bahagia.mp3",
             "./music/sosok-sempurna.mp3",

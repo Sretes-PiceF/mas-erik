@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Simpan flag bahwa user telah berinteraksi
             localStorage.setItem("musicAllowed", "true");
             // Redirect ke undangan
-            window.location.href = "undangan.html";
+            window.location.href = "index.html";
         });
     }
 });
